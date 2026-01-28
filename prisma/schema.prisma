@@ -1,0 +1,227 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/prisma"
+}
+
+// prisma/schema.prisma
+datasource db {
+  provider = "postgresql"
+}
+
+//////////////////////
+// ENUMS
+//////////////////////
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+//////////////////////
+// USERS (AUTH)
+//////////////////////
+
+model User {
+  userId       Int      @id @default(autoincrement())
+  userName     String   @db.VarChar(250)
+  emailAddress String   @unique @db.VarChar(500)
+  password     String   @db.VarChar(255)
+  mobileNo     String   @db.VarChar(50)
+  profileImage String?  @db.VarChar(500)
+  role         UserRole @default(USER)
+
+  isDeleted    Boolean  @default(false)
+  tokenVersion Int      @default(0)
+
+  created  DateTime @default(now())
+  modified DateTime @updatedAt
+
+  peoples People[]
+}
+
+//////////////////////
+// PEOPLES (EMPLOYEES)
+//////////////////////
+
+model People {
+  peopleId    Int     @id @default(autoincrement())
+  peopleCode  String? @db.VarChar(50)
+  peopleName  String  @db.VarChar(250)
+  email       String?  @db.VarChar(150)
+  password    String?  @db.VarChar(255)
+  mobileNo    String?  @db.VarChar(50)
+  description String? @db.VarChar(500)
+  isActive    Boolean @default(true)
+  isDeleted   Boolean @default(false)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [userId])
+
+  created  DateTime @default(now())
+  modified DateTime @updatedAt
+
+  expenses Expense[]
+  incomes  Income[]
+}
+
+//////////////////////
+// CATEGORIES
+//////////////////////
+
+model Category {
+  categoryId   Int      @id @default(autoincrement())
+  categoryName String   @db.VarChar(250)
+  logoPath     String?  @db.VarChar(250)
+  isExpense    Boolean
+  isIncome     Boolean
+  isActive     Boolean  @default(true)
+  isDeleted    Boolean  @default(false)
+  description  String?  @db.VarChar(500)
+  sequence     Decimal?
+
+  userId   Int
+  created  DateTime @default(now())
+  modified DateTime @updatedAt
+
+  subCategories SubCategory[]
+  expenses      Expense[]
+  incomes       Income[]
+  budgets       Budget[]
+}
+
+//////////////////////
+// SUB CATEGORIES
+//////////////////////
+
+model SubCategory {
+  subCategoryId   Int      @id @default(autoincrement())
+  subCategoryName String   @db.VarChar(250)
+  logoPath        String?  @db.VarChar(250)
+  isExpense       Boolean
+  isIncome        Boolean
+  isActive        Boolean  @default(true)
+  isDeleted       Boolean  @default(false)
+  description     String?  @db.VarChar(500)
+  sequence        Decimal?
+
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [categoryId])
+
+  userId   Int
+  created  DateTime @default(now())
+  modified DateTime @updatedAt
+
+  expenses Expense[]
+  incomes  Income[]
+}
+
+//////////////////////
+// PROJECTS
+//////////////////////
+
+model Project {
+  projectId        Int       @id @default(autoincrement())
+  projectName      String    @db.VarChar(250)
+  projectLogo      String?   @db.VarChar(250)
+  projectStartDate DateTime?
+  projectEndDate   DateTime?
+  projectDetail    String?   @db.VarChar(500)
+  description      String?   @db.VarChar(500)
+  isActive         Boolean   @default(true)
+  isDeleted        Boolean   @default(false)
+
+  userId   Int
+  created  DateTime @default(now())
+  modified DateTime @updatedAt
+
+  expenses Expense[]
+  incomes  Income[]
+}
+
+//////////////////////
+// EXPENSES
+//////////////////////
+
+model Expense {
+  expenseId   Int      @id @default(autoincrement())
+  expenseDate DateTime
+  amount      Decimal
+
+  expenseDetail  String? @db.VarChar(500)
+  attachmentPath String? @db.VarChar(250)
+  description    String? @db.VarChar(500)
+  isDeleted      Boolean @default(false)
+
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [categoryId])
+
+  subCategoryId Int?
+  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [subCategoryId])
+
+  projectId Int?
+  project   Project? @relation(fields: [projectId], references: [projectId])
+
+  peopleId Int
+  people   People @relation(fields: [peopleId], references: [peopleId])
+
+  userId   Int
+  created  DateTime @default(now())
+  modified DateTime @updatedAt
+}
+
+//////////////////////
+// INCOMES
+//////////////////////
+
+model Income {
+  incomeId   Int      @id @default(autoincrement())
+  incomeDate DateTime
+  amount     Decimal
+
+  incomeDetail   String? @db.VarChar(500)
+  attachmentPath String? @db.VarChar(250)
+  description    String? @db.VarChar(500)
+  isDeleted      Boolean @default(false)
+
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [categoryId])
+
+  subCategoryId Int?
+  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [subCategoryId])
+
+  projectId Int?
+  project   Project? @relation(fields: [projectId], references: [projectId])
+
+  peopleId Int
+  people   People @relation(fields: [peopleId], references: [peopleId])
+
+  userId   Int
+  created  DateTime @default(now())
+  modified DateTime @updatedAt
+}
+
+//////////////////////
+// BUDGETS
+//////////////////////
+
+model Budget {
+  budgetId    Int      @id @default(autoincrement())
+  amount      Decimal
+  month       Int
+  year        Int
+
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [categoryId])
+
+  userId   Int
+  created  DateTime @default(now())
+  modified DateTime @updatedAt
+
+  @@unique([userId, month, year, categoryId])
+}
