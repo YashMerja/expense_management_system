@@ -79,7 +79,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
                                     role: "EMPLOYEE",
                                     accountType: "PEOPLE",
                                     userId: people.userId,
-                                    tokenVersion: 0,
+                                    tokenVersion: people.tokenVersion,
                                     isDeleted: people.isDeleted,
                                 }
                             }

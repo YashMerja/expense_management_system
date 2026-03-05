@@ -43,6 +43,7 @@ model User {
   modified DateTime @updatedAt
 
   peoples People[]
+  notifications Notification[]
 }
 
 //////////////////////
@@ -57,8 +58,10 @@ model People {
   password    String?  @db.VarChar(255)
   mobileNo    String?  @db.VarChar(50)
   description String? @db.VarChar(500)
+  profileImage String? @db.VarChar(500)
   isActive    Boolean @default(true)
   isDeleted   Boolean @default(false)
+  tokenVersion Int    @default(0)
 
   userId Int
   user   User @relation(fields: [userId], references: [userId])
@@ -68,6 +71,7 @@ model People {
 
   expenses Expense[]
   incomes  Income[]
+  notifications Notification[]
 }
 
 //////////////////////
@@ -224,4 +228,28 @@ model Budget {
   modified DateTime @updatedAt
 
   @@unique([userId, month, year, categoryId])
+}
+
+//////////////////////
+// NOTIFICATIONS
+//////////////////////
+
+model Notification {
+  notificationId Int      @id @default(autoincrement())
+  title          String   @db.VarChar(250)
+  message        String   @db.VarChar(500)
+  type           String   @db.VarChar(50) // expense, income, project, budget
+
+  isRead         Boolean  @default(false)
+
+  referenceId    Int?     // expenseId, projectId, etc
+  referenceType  String?  @db.VarChar(50)
+
+  userId Int?
+  user   User? @relation(fields: [userId], references: [userId])
+
+  peopleId Int?
+  people   People? @relation(fields: [peopleId], references: [peopleId])
+
+  created  DateTime @default(now())
 }
