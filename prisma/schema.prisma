@@ -1,134 +1,86 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../node_modules/.prisma/client"
 }
 
-// prisma/schema.prisma
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
 }
-
-
-//////////////////////
-// ENUMS
-//////////////////////
-
-enum UserRole {
-  ADMIN
-  USER
-}
-
-//////////////////////
-// USERS (AUTH)
-//////////////////////
 
 model User {
-  userId       Int      @id @default(autoincrement())
-  userName     String   @db.VarChar(250)
-  emailAddress String   @unique @db.VarChar(500)
-  password     String   @db.VarChar(255)
-  mobileNo     String   @db.VarChar(50)
-  profileImage String?  @db.VarChar(500)
-  role         UserRole @default(USER)
-
-  isDeleted    Boolean  @default(false)
-  tokenVersion Int      @default(0)
-
-  created  DateTime @default(now())
-  modified DateTime @updatedAt
-
-  peoples People[]
+  userId        Int            @id @default(autoincrement())
+  userName      String         @db.VarChar(250)
+  emailAddress  String         @unique @db.VarChar(500)
+  password      String         @db.VarChar(255)
+  mobileNo      String         @db.VarChar(50)
+  profileImage  String?        @db.VarChar(500)
+  role          UserRole       @default(USER)
+  created       DateTime       @default(now())
+  modified      DateTime       @updatedAt
+  isDeleted     Boolean        @default(false)
+  tokenVersion  Int            @default(0)
   notifications Notification[]
+  peoples       People[]
 }
-
-//////////////////////
-// PEOPLES (EMPLOYEES)
-//////////////////////
 
 model People {
-  peopleId    Int     @id @default(autoincrement())
-  peopleCode  String? @db.VarChar(50)
-  peopleName  String  @db.VarChar(250)
-  email       String?  @db.VarChar(150)
-  password    String?  @db.VarChar(255)
-  mobileNo    String?  @db.VarChar(50)
-  description String? @db.VarChar(500)
-  profileImage String? @db.VarChar(500)
-  isActive    Boolean @default(true)
-  isDeleted   Boolean @default(false)
-  tokenVersion Int    @default(0)
-
-  userId Int
-  user   User @relation(fields: [userId], references: [userId])
-
-  created  DateTime @default(now())
-  modified DateTime @updatedAt
-
-  expenses Expense[]
-  incomes  Income[]
-  notifications Notification[]
-}
-
-//////////////////////
-// CATEGORIES
-//////////////////////
-
-model Category {
-  categoryId   Int      @id @default(autoincrement())
-  categoryName String   @db.VarChar(250)
-  logoPath     String?  @db.VarChar(250)
-  isExpense    Boolean
-  isIncome     Boolean
-  isActive     Boolean  @default(true)
-  isDeleted    Boolean  @default(false)
-  description  String?  @db.VarChar(500)
-  sequence     Decimal?
-
-  userId   Int
-  created  DateTime @default(now())
-  modified DateTime @updatedAt
-
-  subCategories SubCategory[]
+  peopleId      Int            @id @default(autoincrement())
+  peopleCode    String?        @db.VarChar(50)
+  peopleName    String         @db.VarChar(250)
+  email         String?        @db.VarChar(150)
+  password      String?        @db.VarChar(255)
+  mobileNo      String?        @db.VarChar(50)
+  description   String?        @db.VarChar(500)
+  isActive      Boolean        @default(true)
+  userId        Int
+  created       DateTime       @default(now())
+  modified      DateTime       @updatedAt
+  isDeleted     Boolean        @default(false)
+  profileImage  String?        @db.VarChar(500)
+  tokenVersion  Int            @default(0)
   expenses      Expense[]
   incomes       Income[]
-  budgets       Budget[]
+  notifications Notification[]
+  user          User           @relation(fields: [userId], references: [userId])
 }
 
-//////////////////////
-// SUB CATEGORIES
-//////////////////////
+model Category {
+  categoryId    Int           @id @default(autoincrement())
+  categoryName  String        @db.VarChar(250)
+  logoPath      String?       @db.VarChar(250)
+  isExpense     Boolean
+  isIncome      Boolean
+  isActive      Boolean       @default(true)
+  description   String?       @db.VarChar(500)
+  sequence      Decimal?
+  userId        Int
+  created       DateTime      @default(now())
+  modified      DateTime      @updatedAt
+  isDeleted     Boolean       @default(false)
+  budgets       Budget[]
+  expenses      Expense[]
+  incomes       Income[]
+  subCategories SubCategory[]
+}
 
 model SubCategory {
-  subCategoryId   Int      @id @default(autoincrement())
-  subCategoryName String   @db.VarChar(250)
-  logoPath        String?  @db.VarChar(250)
+  subCategoryId   Int       @id @default(autoincrement())
+  subCategoryName String    @db.VarChar(250)
+  logoPath        String?   @db.VarChar(250)
   isExpense       Boolean
   isIncome        Boolean
-  isActive        Boolean  @default(true)
-  isDeleted       Boolean  @default(false)
-  description     String?  @db.VarChar(500)
+  isActive        Boolean   @default(true)
+  description     String?   @db.VarChar(500)
   sequence        Decimal?
-
-  categoryId Int
-  category   Category @relation(fields: [categoryId], references: [categoryId])
-
-  userId   Int
-  created  DateTime @default(now())
-  modified DateTime @updatedAt
-
-  expenses Expense[]
-  incomes  Income[]
+  categoryId      Int
+  userId          Int
+  created         DateTime  @default(now())
+  modified        DateTime  @updatedAt
+  isDeleted       Boolean   @default(false)
+  expenses        Expense[]
+  incomes         Income[]
+  category        Category  @relation(fields: [categoryId], references: [categoryId])
 }
-
-//////////////////////
-// PROJECTS
-//////////////////////
 
 model Project {
   projectId        Int       @id @default(autoincrement())
@@ -139,118 +91,86 @@ model Project {
   projectDetail    String?   @db.VarChar(500)
   description      String?   @db.VarChar(500)
   isActive         Boolean   @default(true)
+  userId           Int
+  created          DateTime  @default(now())
+  modified         DateTime  @updatedAt
   isDeleted        Boolean   @default(false)
-
-  userId   Int
-  created  DateTime @default(now())
-  modified DateTime @updatedAt
-
-  expenses Expense[]
-  incomes  Income[]
+  expenses         Expense[]
+  incomes          Income[]
 }
-
-//////////////////////
-// EXPENSES
-//////////////////////
 
 model Expense {
-  expenseId   Int      @id @default(autoincrement())
-  expenseDate DateTime
-  amount      Decimal
-
-  expenseDetail  String? @db.VarChar(500)
-  attachmentPath String? @db.VarChar(250)
-  description    String? @db.VarChar(500)
-  isDeleted      Boolean @default(false)
-
-  categoryId Int?
-  category   Category? @relation(fields: [categoryId], references: [categoryId])
-
-  subCategoryId Int?
-  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [subCategoryId])
-
-  projectId Int?
-  project   Project? @relation(fields: [projectId], references: [projectId])
-
-  peopleId Int
-  people   People @relation(fields: [peopleId], references: [peopleId])
-
-  userId   Int
-  created  DateTime @default(now())
-  modified DateTime @updatedAt
+  expenseId      Int          @id @default(autoincrement())
+  expenseDate    DateTime
+  amount         Decimal
+  expenseDetail  String?      @db.VarChar(500)
+  attachmentPath String?      @db.VarChar(250)
+  description    String?      @db.VarChar(500)
+  categoryId     Int?
+  subCategoryId  Int?
+  projectId      Int?
+  peopleId       Int
+  userId         Int
+  created        DateTime     @default(now())
+  modified       DateTime     @updatedAt
+  isDeleted      Boolean      @default(false)
+  category       Category?    @relation(fields: [categoryId], references: [categoryId])
+  people         People       @relation(fields: [peopleId], references: [peopleId])
+  project        Project?     @relation(fields: [projectId], references: [projectId])
+  subCategory    SubCategory? @relation(fields: [subCategoryId], references: [subCategoryId])
 }
-
-//////////////////////
-// INCOMES
-//////////////////////
 
 model Income {
-  incomeId   Int      @id @default(autoincrement())
-  incomeDate DateTime
-  amount     Decimal
-
-  incomeDetail   String? @db.VarChar(500)
-  attachmentPath String? @db.VarChar(250)
-  description    String? @db.VarChar(500)
-  isDeleted      Boolean @default(false)
-
-  categoryId Int?
-  category   Category? @relation(fields: [categoryId], references: [categoryId])
-
-  subCategoryId Int?
-  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [subCategoryId])
-
-  projectId Int?
-  project   Project? @relation(fields: [projectId], references: [projectId])
-
-  peopleId Int
-  people   People @relation(fields: [peopleId], references: [peopleId])
-
-  userId   Int
-  created  DateTime @default(now())
-  modified DateTime @updatedAt
+  incomeId       Int          @id @default(autoincrement())
+  incomeDate     DateTime
+  amount         Decimal
+  incomeDetail   String?      @db.VarChar(500)
+  attachmentPath String?      @db.VarChar(250)
+  description    String?      @db.VarChar(500)
+  categoryId     Int?
+  subCategoryId  Int?
+  projectId      Int?
+  peopleId       Int
+  userId         Int
+  created        DateTime     @default(now())
+  modified       DateTime     @updatedAt
+  isDeleted      Boolean      @default(false)
+  category       Category?    @relation(fields: [categoryId], references: [categoryId])
+  people         People       @relation(fields: [peopleId], references: [peopleId])
+  project        Project?     @relation(fields: [projectId], references: [projectId])
+  subCategory    SubCategory? @relation(fields: [subCategoryId], references: [subCategoryId])
 }
 
-//////////////////////
-// BUDGETS
-//////////////////////
-
 model Budget {
-  budgetId    Int      @id @default(autoincrement())
-  amount      Decimal
-  month       Int
-  year        Int
-
+  budgetId   Int       @id @default(autoincrement())
+  amount     Decimal
+  month      Int
+  year       Int
   categoryId Int?
+  userId     Int
+  created    DateTime  @default(now())
+  modified   DateTime  @updatedAt
   category   Category? @relation(fields: [categoryId], references: [categoryId])
-
-  userId   Int
-  created  DateTime @default(now())
-  modified DateTime @updatedAt
 
   @@unique([userId, month, year, categoryId])
 }
-
-//////////////////////
-// NOTIFICATIONS
-//////////////////////
 
 model Notification {
   notificationId Int      @id @default(autoincrement())
   title          String   @db.VarChar(250)
   message        String   @db.VarChar(500)
-  type           String   @db.VarChar(50) // expense, income, project, budget
-
+  type           String   @db.VarChar(50)
   isRead         Boolean  @default(false)
-
-  referenceId    Int?     // expenseId, projectId, etc
+  referenceId    Int?
   referenceType  String?  @db.VarChar(50)
+  userId         Int?
+  created        DateTime @default(now())
+  peopleId       Int?
+  people         People?  @relation(fields: [peopleId], references: [peopleId])
+  user           User?    @relation(fields: [userId], references: [userId])
+}
 
-  userId Int?
-  user   User? @relation(fields: [userId], references: [userId])
-
-  peopleId Int?
-  people   People? @relation(fields: [peopleId], references: [peopleId])
-
-  created  DateTime @default(now())
+enum UserRole {
+  ADMIN
+  USER
 }
